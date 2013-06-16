@@ -1,0 +1,102 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>net.hbakkum</groupId>
+    <artifactId>rundeck-hipchat-plugin</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>rundeck-hipchat-plugin</name>
+    <url>http://maven.apache.org</url>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <build>
+        <plugins>
+
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Rundeck-Plugin-Classnames>com.github.rundeck.plugin.hipchat.HipChatNotificationPlugin</Rundeck-Plugin-Classnames>
+                            <Rundeck-Plugin-Version>1.1</Rundeck-Plugin-Version>
+                            <Rundeck-Plugin-Archive>true</Rundeck-Plugin-Archive>
+                            <Rundeck-Plugin-File-Version>${project.version}</Rundeck-Plugin-File-Version>
+                            <Rundeck-Plugin-Libs>lib/freemarker-2.3.19.jar lib/jackson-core-asl-1.9.12.jar lib/jackson-mapper-asl-1.9.12.jar</Rundeck-Plugin-Libs>
+                        </manifestEntries>
+                        </archive>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.8</version>
+                <executions>
+                    <execution>
+                        <id>copy</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.freemarker</groupId>
+                                    <artifactId>freemarker</artifactId>
+                                    <version>2.3.19</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.codehaus.jackson</groupId>
+                                    <artifactId>jackson-core-asl</artifactId>
+                                    <version>1.9.12</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.codehaus.jackson</groupId>
+                                    <artifactId>jackson-mapper-asl</artifactId>
+                                    <version>1.9.12</version>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${project.build.directory}/classes/lib</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.rundeck</groupId>
+            <artifactId>rundeck-core</artifactId>
+            <version>1.5.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.freemarker</groupId>
+            <artifactId>freemarker</artifactId>
+            <version>2.3.19</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
+            <version>1.9.12</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+</project>
