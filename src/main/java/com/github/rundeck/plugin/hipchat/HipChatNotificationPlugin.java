@@ -126,6 +126,7 @@ public class HipChatNotificationPlugin implements NotificationPlugin {
         try {
             Template template = FREEMARKER_CFG.getTemplate(templateName);
             template.process(model,sw);
+
         } catch (IOException ioEx) {
             throw new HipChatNotificationPluginException("Error loading HipChat notification message template: [" + ioEx.getMessage() + "].", ioEx);
         } catch (TemplateException templateEx) {
@@ -170,7 +171,20 @@ public class HipChatNotificationPlugin implements NotificationPlugin {
             input = connection.getErrorStream();
         }
 
+        int responseCode = getResponseCode(connection);
+        if (!"application/json".equals(connection.getHeaderField("content-type"))) {
+            throw new HipChatNotificationPluginException("Request did not reach HipChat API. Response code was [" + responseCode + "]. Are your proxy settings correct?");
+        }
+
         return input;
+    }
+
+    private int getResponseCode(HttpURLConnection connection) {
+        try {
+            return connection.getResponseCode();
+        } catch (IOException ioEx) {
+            throw new HipChatNotificationPluginException("Could not obtain HTTP response: [" + ioEx.getMessage() + "].", ioEx);
+        }
     }
 
     private void closeAndDisconnectQuietly(InputStream input, HttpURLConnection connection) {
