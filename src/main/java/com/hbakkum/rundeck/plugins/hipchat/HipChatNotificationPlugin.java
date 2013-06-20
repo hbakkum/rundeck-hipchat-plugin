@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package com.github.rundeck.plugin.hipchat;
+package com.hbakkum.rundeck.plugins.hipchat;
 
 import com.dtolabs.rundeck.core.plugins.Plugin;
 import com.dtolabs.rundeck.plugins.descriptions.PluginDescription;
@@ -27,10 +27,7 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -87,11 +84,19 @@ public class HipChatNotificationPlugin implements NotificationPlugin {
             throw new IllegalArgumentException("Unknown trigger type: [" + trigger + "].");
         }
 
-        String hipChatMessageRoomQuery = createHipChatAPIMessageRoomQuery(trigger, executionData, config);
+        String color = TRIGGER_NOTIFICATION_DATA.get(trigger).color;
+        String message = generateMessage(trigger, executionData, config);
+        String params = String.format(HIPCHAT_API_MESSAGE_ROOM_QUERY,
+                urlEncode(apiAuthToken),
+                urlEncode(room),
+                urlEncode(HIPCHAT_MESSAGE_FROM_NAME),
+                urlEncode(message),
+                urlEncode(color));
 
-        HipChatAPIResponse hipChatResponse = sendHipChatAPIQuery(hipChatMessageRoomQuery);
-        if (hipChatResponse.error != null) {
-            throw new HipChatNotificationPluginException("Error returned from HipChat API: [" + hipChatResponse.error.get("message") + "].");
+        HipChatAPIResponse hipChatResponse = invokeHipChatAPIMethod(HIPCHAT_API_MESSAGE_ROOM_METHOD, params);
+
+        if (hipChatResponse.hasError()) {
+            throw new HipChatNotificationPluginException("Error returned from HipChat API: [" + hipChatResponse.getErrorMessage() + "].");
         }
 
         if ("sent".equals(hipChatResponse.status)) {
@@ -99,19 +104,6 @@ public class HipChatNotificationPlugin implements NotificationPlugin {
         } else {
             throw new HipChatNotificationPluginException("Unknown status returned from HipChat API: [" + hipChatResponse.status + "].");
         }
-    }
-
-    private String createHipChatAPIMessageRoomQuery(String trigger, Map executionData, Map config) {
-        String color = TRIGGER_NOTIFICATION_DATA.get(trigger).color;
-        String message = generateMessage(trigger, executionData, config);
-        String query = String.format(HIPCHAT_API_MESSAGE_ROOM_QUERY,
-                urlEncode(apiAuthToken),
-                urlEncode(room),
-                urlEncode(HIPCHAT_MESSAGE_FROM_NAME),
-                urlEncode(message),
-                urlEncode(color));
-
-        return HIPCHAT_API_MESSAGE_ROOM_METHOD + query;
     }
 
     private String generateMessage(String trigger, Map executionData, Map config) {
@@ -144,22 +136,44 @@ public class HipChatNotificationPlugin implements NotificationPlugin {
         }
     }
 
-    private HipChatAPIResponse sendHipChatAPIQuery(String query) {
+    private HipChatAPIResponse invokeHipChatAPIMethod(String method, String params) {
+        URL requestUrl = toURL(HIPCHAT_API_BASE + method + params);
+
         HttpURLConnection connection = null;
-        InputStream input = null;
+        InputStream responseStream = null;
         try {
-            URL requestUrl = new URL(HIPCHAT_API_BASE + query);
-            connection = (HttpURLConnection) requestUrl.openConnection();
-            input = getResponseStream(connection);
+            connection = openConnection(requestUrl);
+            responseStream = getResponseStream(connection);
+            int responseCode = getResponseCode(connection);
 
-            return new ObjectMapper().readValue(input, HipChatAPIResponse.class);
+            // naively check that a HipChat API response was obtained.
+            if ("application/json".equals(connection.getHeaderField("content-type"))) {
+                return toHipChatResponse(responseStream);
+            } else {
+                throw new HipChatNotificationPluginException("Request did not reach HipChat API. Response code was [" + responseCode + "]. Are your proxy settings correct?");
+            }
 
+        } finally {
+            closeQuietly(responseStream);
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+    }
+
+    private URL toURL(String url) {
+        try {
+            return new URL(url);
         } catch (MalformedURLException malformedURLEx) {
             throw new HipChatNotificationPluginException("HipChat API URL is malformed: [" + malformedURLEx.getMessage() + "].", malformedURLEx);
+        }
+    }
+
+    private HttpURLConnection openConnection(URL requestUrl) {
+        try {
+            return (HttpURLConnection) requestUrl.openConnection();
         } catch (IOException ioEx) {
-            throw new HipChatNotificationPluginException("IO error occurred while communicating with HipChat API: [" + ioEx.getMessage() + "].", ioEx);
-        } finally {
-            closeAndDisconnectQuietly(input, connection);
+            throw new HipChatNotificationPluginException("Error opening connection to HipChat URL: [" + ioEx.getMessage() + "].", ioEx);
         }
     }
 
@@ -170,12 +184,6 @@ public class HipChatNotificationPlugin implements NotificationPlugin {
         } catch (IOException ioEx) {
             input = connection.getErrorStream();
         }
-
-        int responseCode = getResponseCode(connection);
-        if (!"application/json".equals(connection.getHeaderField("content-type"))) {
-            throw new HipChatNotificationPluginException("Request did not reach HipChat API. Response code was [" + responseCode + "]. Are your proxy settings correct?");
-        }
-
         return input;
     }
 
@@ -183,21 +191,25 @@ public class HipChatNotificationPlugin implements NotificationPlugin {
         try {
             return connection.getResponseCode();
         } catch (IOException ioEx) {
-            throw new HipChatNotificationPluginException("Could not obtain HTTP response: [" + ioEx.getMessage() + "].", ioEx);
+            throw new HipChatNotificationPluginException("Failed to obtain HTTP response: [" + ioEx.getMessage() + "].", ioEx);
         }
     }
 
-    private void closeAndDisconnectQuietly(InputStream input, HttpURLConnection connection) {
+    private HipChatAPIResponse toHipChatResponse(InputStream responseStream) {
+        try {
+            return new ObjectMapper().readValue(responseStream, HipChatAPIResponse.class);
+        } catch (IOException ioEx) {
+            throw new HipChatNotificationPluginException("Error reading HipChat API JSON response: [" + ioEx.getMessage() + "].", ioEx);
+        }
+    }
+
+    private void closeQuietly(InputStream input) {
         if (input != null) {
             try {
                 input.close();
             } catch (IOException ioEx) {
                 // ignore
             }
-        }
-
-        if (connection != null) {
-            connection.disconnect();
         }
     }
 
@@ -214,6 +226,14 @@ public class HipChatNotificationPlugin implements NotificationPlugin {
     private static class HipChatAPIResponse {
         @JsonProperty private String status;
         @JsonProperty private Map<String, Object> error;
+
+        private boolean hasError() {
+            return error != null;
+        }
+
+        private String getErrorMessage() {
+            return (String) error.get("message");
+        }
     }
 
 }

@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package com.github.rundeck.plugin.hipchat;
+package com.hbakkum.rundeck.plugins.hipchat;
 
 public class HipChatNotificationPluginException extends RuntimeException {
 
