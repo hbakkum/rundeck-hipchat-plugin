@@ -8,7 +8,29 @@
     <packaging>jar</packaging>
 
     <name>rundeck-hipchat-plugin</name>
-    <url>http://maven.apache.org</url>
+    <description>Sends rundeck job notification messages to a HipChat room</description>
+    <url>https://github.com/hbakkum/rundeck-hipchat-plugin</url>
+
+    <developers>
+        <developer>
+            <id>hbakkum</id>
+            <name>Hayden Bakkum</name>
+            <email>hayden.bakkum@gmail.com</email>
+        </developer>
+    </developers>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:git://github.com/hbakkum/rundeck-hipchat-plugin.git</connection>
+        <developerConnection>scm:git:git@github.com:hbakkum/rundeck-hipchat-plugin.git</developerConnection>
+        <url>https://github.com/hbakkum/rundeck-hipchat-plugin</url>
+    </scm>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
