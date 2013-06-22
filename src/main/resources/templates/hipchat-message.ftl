@@ -8,7 +8,7 @@
 <#elseif trigger == "success">
     <b>succeeded</b>
 </#if>
-.</p>
+</p>
 <ul>
     <li>User: ${executionData.context.job.username}</li>
     <li>ExecId: ${executionData.context.job.execid}</li>
