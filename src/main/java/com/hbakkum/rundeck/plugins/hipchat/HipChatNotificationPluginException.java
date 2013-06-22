@@ -34,7 +34,7 @@ public class HipChatNotificationPluginException extends RuntimeException {
      * Constructor.
      *
      * @param message error message
-     * @param cause
+     * @param cause exception cause
      */
     public HipChatNotificationPluginException(String message, Throwable cause) {
         super(message, cause);
