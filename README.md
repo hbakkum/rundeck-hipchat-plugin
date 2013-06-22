@@ -6,7 +6,7 @@ Sends rundeck notification messages to a HipChat room
 Installation Instructions
 -------------------------
 
-Simply copy the built jar (rundeck-hipchat-plugin-<version>.jar) into your $RDECK_BASE/libext - no restart of rundeck 
+Simply copy the built jar (rundeck-hipchat-plugin-\<version\>.jar) into your $RDECK_BASE/libext - no restart of rundeck 
 required. See the [rundeck documentation](http://rundeck.org/docs/manual/plugins.html#installing-plugins) for more 
 information on installing rundeck plugins.
 
