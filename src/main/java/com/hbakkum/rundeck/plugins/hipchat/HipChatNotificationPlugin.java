@@ -35,6 +35,11 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Sends Rundeck job notification messages to a HipChat room.
+ *
+ * @author Hayden Bakkum
+ */
 @Plugin(service= "Notification", name="HipChatNotification")
 @PluginDescription(title="HipChat")
 public class HipChatNotificationPlugin implements NotificationPlugin {
@@ -78,6 +83,15 @@ public class HipChatNotificationPlugin implements NotificationPlugin {
             required = true)
     private String apiAuthToken;
 
+    /**
+     * Sends a message to a HipChat room when a job notification event is raised by Rundeck.
+     *
+     * @param trigger name of job notification event causing notification
+     * @param executionData job execution data
+     * @param config plugin configuration
+     * @throws HipChatNotificationPluginException when any error occurs sending the HipChat message
+     * @return true, if the HipChat API response indicates a message was successfully delivered to a chat room
+     */
     @Override
     public boolean postNotification(String trigger, Map executionData, Map config) {
         if (!TRIGGER_NOTIFICATION_DATA.containsKey(trigger)) {
@@ -102,6 +116,8 @@ public class HipChatNotificationPlugin implements NotificationPlugin {
         if ("sent".equals(hipChatResponse.status)) {
             return true;
         } else {
+            // Unfortunately there seems to be no way to obtain a reference to the plugin logger within notification plugins,
+            // but throwing an exception will result in its message being logged.
             throw new HipChatNotificationPluginException("Unknown status returned from HipChat API: [" + hipChatResponse.status + "].");
         }
     }

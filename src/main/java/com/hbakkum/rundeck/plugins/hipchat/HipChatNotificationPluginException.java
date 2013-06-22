@@ -16,12 +16,26 @@
 
 package com.hbakkum.rundeck.plugins.hipchat;
 
+/**
+ * @author Hayden Bakkum
+ */
 public class HipChatNotificationPluginException extends RuntimeException {
 
+    /**
+     * Constructor.
+     *
+     * @param message error message
+     */
     public HipChatNotificationPluginException(String message) {
         super(message);
     }
 
+    /**
+     * Constructor.
+     *
+     * @param message error message
+     * @param cause
+     */
     public HipChatNotificationPluginException(String message, Throwable cause) {
         super(message, cause);
     }
