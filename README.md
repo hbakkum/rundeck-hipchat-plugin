@@ -8,7 +8,7 @@ Installation Instructions
 
 1. Either download the latest release from Maven Central 
 ([link](http://search.maven.org/#search%7Cga%7C1%7Crundeck-hipchat-plugin)) or build a snapshot from source. 
-2. Then copy the plugin jar (rundeck-hipchat-plugin-\<version\>.jar) into your $RDECK_BASE/libext - no restart of rundeck required. 
+2. Copy the plugin jar (rundeck-hipchat-plugin-\<version\>.jar) into your $RDECK_BASE/libext - no restart of rundeck required. 
 
 See the [rundeck documentation](http://rundeck.org/docs/manual/plugins.html#installing-plugins) for more 
 information on installing rundeck plugins.
