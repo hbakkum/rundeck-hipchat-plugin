@@ -45,7 +45,8 @@ import java.util.Map;
 @PluginDescription(title="HipChat")
 public class HipChatNotificationPlugin implements NotificationPlugin {
 
-    private static final String HIPCHAT_API_BASE = "https://api.hipchat.com/v1/";
+    private static final String HIPCHAT_API_DEFAULT_BASE_URL = "https://api.hipchat.com";
+    private static final String HIPCHAT_API_DEFAULT_VERSION = "v1";
     private static final String HIPCHAT_API_MESSAGE_ROOM_METHOD = "rooms/message";
     private static final String HIPCHAT_API_MESSAGE_ROOM_QUERY = "?auth_token=%s&format=json&message_format=html&room_id=%s&from=%s&message=%s&color=%s";
 
@@ -72,6 +73,14 @@ public class HipChatNotificationPlugin implements NotificationPlugin {
             description = "HipChat room to send notification message to.",
             required = true)
     private String room;
+
+    @PluginProperty(
+            title = "HipChat Server Base URL",
+            description = "Base URL of HipChat Server",
+            required = false,
+            defaultValue = HIPCHAT_API_DEFAULT_BASE_URL,
+            scope = PropertyScope.Project)
+    private String hipchatServerBaseUrl;
 
     @PluginProperty(
             title = "API Auth Token",
@@ -173,7 +182,7 @@ public class HipChatNotificationPlugin implements NotificationPlugin {
     }
 
     private HipChatAPIResponse invokeHipChatAPIMethod(String method, String params) {
-        URL requestUrl = toURL(HIPCHAT_API_BASE + method + params);
+        URL requestUrl = toURL(hipchatServerBaseUrl + "/" + HIPCHAT_API_DEFAULT_VERSION + "/" + method + params);
 
         HttpURLConnection connection = null;
         InputStream responseStream = null;
@@ -227,7 +236,7 @@ public class HipChatNotificationPlugin implements NotificationPlugin {
         try {
             return connection.getResponseCode();
         } catch (IOException ioEx) {
-            throw new HipChatNotificationPluginException("Failed to obtain HTTP response: [" + ioEx.getMessage() + "].", ioEx);
+            throw new HipChatNotificationPluginException("Failed to obtain HTTP response from [" + hipchatServerBaseUrl + "]: [" + ioEx.getMessage() + "].", ioEx);
         }
     }
 
