@@ -21,18 +21,15 @@ import com.dtolabs.rundeck.core.plugins.configuration.PropertyScope;
 import com.dtolabs.rundeck.plugins.descriptions.PluginDescription;
 import com.dtolabs.rundeck.plugins.descriptions.PluginProperty;
 import com.dtolabs.rundeck.plugins.notification.NotificationPlugin;
+import com.hbakkum.rundeck.plugins.hipchat.roomnotifier.HipChatRoomNotifier;
+import com.hbakkum.rundeck.plugins.hipchat.roomnotifier.HipChatRoomNotifierFactory;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.map.ObjectMapper;
 
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLEncoder;
+import java.io.File;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,14 +44,11 @@ public class HipChatNotificationPlugin implements NotificationPlugin {
 
     private static final String HIPCHAT_API_DEFAULT_BASE_URL = "https://api.hipchat.com";
     private static final String HIPCHAT_API_DEFAULT_VERSION = "v1";
-    private static final String HIPCHAT_API_MESSAGE_ROOM_METHOD = "rooms/message";
-    private static final String HIPCHAT_API_MESSAGE_ROOM_QUERY = "?auth_token=%s&format=json&message_format=html&room_id=%s&from=%s&message=%s&color=%s";
 
     private static final String HIPCHAT_MESSAGE_COLOR_GREEN = "green";
     private static final String HIPCHAT_MESSAGE_COLOR_YELLOW = "yellow";
     private static final String HIPCHAT_MESSAGE_COLOR_RED = "red";
 
-    private static final String HIPCHAT_MESSAGE_FROM_NAME = "Rundeck";
     private static final String HIPCHAT_MESSAGE_DEFAULT_TEMPLATE = "hipchat-message.ftl";
 
     private static final String TRIGGER_START = "start";
@@ -81,6 +75,14 @@ public class HipChatNotificationPlugin implements NotificationPlugin {
             defaultValue = HIPCHAT_API_DEFAULT_BASE_URL,
             scope = PropertyScope.Project)
     private String hipchatServerBaseUrl;
+
+    @PluginProperty(
+            title = "HipChat API Version",
+            description = "HipChat API version to use ",
+            required = false,
+            defaultValue = HIPCHAT_API_DEFAULT_VERSION,
+            scope = PropertyScope.Project)
+    private String apiVersion;
 
     @PluginProperty(
             title = "API Auth Token",
@@ -113,28 +115,12 @@ public class HipChatNotificationPlugin implements NotificationPlugin {
             throw new IllegalArgumentException("Unknown trigger type: [" + trigger + "].");
         }
 
-        String color = TRIGGER_MESSAGE_COLORS.get(trigger);
-        String message = generateMessage(trigger, executionData, config);
-        String params = String.format(HIPCHAT_API_MESSAGE_ROOM_QUERY,
-                urlEncode(apiAuthToken),
-                urlEncode(room),
-                urlEncode(HIPCHAT_MESSAGE_FROM_NAME),
-                urlEncode(message),
-                urlEncode(color));
+        final HipChatRoomNotifier hipChatRoomNotifier = HipChatRoomNotifierFactory.get(apiVersion);
 
-        HipChatAPIResponse hipChatResponse = invokeHipChatAPIMethod(HIPCHAT_API_MESSAGE_ROOM_METHOD, params);
+        final String color = TRIGGER_MESSAGE_COLORS.get(trigger);
+        final String message = generateMessage(trigger, executionData, config);
 
-        if (hipChatResponse.hasError()) {
-            throw new HipChatNotificationPluginException("Error returned from HipChat API: [" + hipChatResponse.getErrorMessage() + "].");
-        }
-
-        if ("sent".equals(hipChatResponse.status)) {
-            return true;
-        } else {
-            // Unfortunately there seems to be no way to obtain a reference to the plugin logger within notification plugins,
-            // but throwing an exception will result in its message being logged.
-            throw new HipChatNotificationPluginException("Unknown status returned from HipChat API: [" + hipChatResponse.status + "].");
-        }
+        return hipChatRoomNotifier.sendRoomNotification(hipchatServerBaseUrl, room, message, color, apiAuthToken);
     }
 
     private String generateMessage(String trigger, Map executionData, Map config) {
@@ -171,105 +157,6 @@ public class HipChatNotificationPlugin implements NotificationPlugin {
         }
 
         return sw.toString();
-    }
-
-    private String urlEncode(String s) {
-        try {
-            return URLEncoder.encode(s, "UTF-8");
-        } catch (UnsupportedEncodingException unsupportedEncodingException) {
-            throw new HipChatNotificationPluginException("URL encoding error: [" + unsupportedEncodingException.getMessage() + "].", unsupportedEncodingException);
-        }
-    }
-
-    private HipChatAPIResponse invokeHipChatAPIMethod(String method, String params) {
-        URL requestUrl = toURL(hipchatServerBaseUrl + "/" + HIPCHAT_API_DEFAULT_VERSION + "/" + method + params);
-
-        HttpURLConnection connection = null;
-        InputStream responseStream = null;
-        try {
-            connection = openConnection(requestUrl);
-            responseStream = getResponseStream(connection);
-            int responseCode = getResponseCode(connection);
-
-            // naively check that a HipChat API response was obtained.
-            if ("application/json".equals(connection.getHeaderField("content-type"))) {
-                return toHipChatResponse(responseStream);
-            } else {
-                throw new HipChatNotificationPluginException("Request did not reach HipChat API. Response code was [" + responseCode + "]. Are your proxy settings correct?");
-            }
-
-        } finally {
-            closeQuietly(responseStream);
-            if (connection != null) {
-                connection.disconnect();
-            }
-        }
-    }
-
-    private URL toURL(String url) {
-        try {
-            return new URL(url);
-        } catch (MalformedURLException malformedURLEx) {
-            throw new HipChatNotificationPluginException("HipChat API URL is malformed: [" + malformedURLEx.getMessage() + "].", malformedURLEx);
-        }
-    }
-
-    private HttpURLConnection openConnection(URL requestUrl) {
-        try {
-            return (HttpURLConnection) requestUrl.openConnection();
-        } catch (IOException ioEx) {
-            throw new HipChatNotificationPluginException("Error opening connection to HipChat URL: [" + ioEx.getMessage() + "].", ioEx);
-        }
-    }
-
-    private InputStream getResponseStream(HttpURLConnection connection) {
-        InputStream input = null;
-        try {
-            input = connection.getInputStream();
-        } catch (IOException ioEx) {
-            input = connection.getErrorStream();
-        }
-        return input;
-    }
-
-    private int getResponseCode(HttpURLConnection connection) {
-        try {
-            return connection.getResponseCode();
-        } catch (IOException ioEx) {
-            throw new HipChatNotificationPluginException("Failed to obtain HTTP response from [" + hipchatServerBaseUrl + "]: [" + ioEx.getMessage() + "].", ioEx);
-        }
-    }
-
-    private HipChatAPIResponse toHipChatResponse(InputStream responseStream) {
-        try {
-            return new ObjectMapper().readValue(responseStream, HipChatAPIResponse.class);
-        } catch (IOException ioEx) {
-            throw new HipChatNotificationPluginException("Error reading HipChat API JSON response: [" + ioEx.getMessage() + "].", ioEx);
-        }
-    }
-
-    private void closeQuietly(InputStream input) {
-        if (input != null) {
-            try {
-                input.close();
-            } catch (IOException ioEx) {
-                // ignore
-            }
-        }
-    }
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private static class HipChatAPIResponse {
-        @JsonProperty private String status;
-        @JsonProperty private Map<String, Object> error;
-
-        private boolean hasError() {
-            return error != null;
-        }
-
-        private String getErrorMessage() {
-            return (String) error.get("message");
-        }
     }
 
 }
