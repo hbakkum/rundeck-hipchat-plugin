@@ -3,7 +3,7 @@ rundeck-hipchat-plugin
 
 Sends rundeck notification messages to a HipChat room.
 
-Latest version is 1.2.0, full release notes can be found [here](https://github.com/hbakkum/rundeck-hipchat-plugin/wiki/Release-Notes). 
+Latest version is 1.3.0, full release notes can be found [here](https://github.com/hbakkum/rundeck-hipchat-plugin/wiki/Release-Notes). 
 
 Installation Instructions
 -------------------------
