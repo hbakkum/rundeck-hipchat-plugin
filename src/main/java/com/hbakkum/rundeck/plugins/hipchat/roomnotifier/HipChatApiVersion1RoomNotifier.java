@@ -1,5 +1,6 @@
 package com.hbakkum.rundeck.plugins.hipchat.roomnotifier;
 
+import com.dtolabs.rundeck.plugins.notification.NotificationPlugin;
 import com.hbakkum.rundeck.plugins.hipchat.HipChatNotificationPluginException;
 import com.hbakkum.rundeck.plugins.hipchat.http.HttpRequestExecutor;
 import com.hbakkum.rundeck.plugins.hipchat.http.HttpResponse;
@@ -9,6 +10,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import static com.hbakkum.rundeck.plugins.hipchat.HipChatNotificationPluginUtils.urlEncode;
 
@@ -30,7 +32,7 @@ public class HipChatApiVersion1RoomNotifier implements HipChatRoomNotifier {
     }
 
     @Override
-    public boolean sendRoomNotification(
+    public void sendRoomNotification(
             final String baseURL,
             final String room,
             final String message,
@@ -50,11 +52,7 @@ public class HipChatApiVersion1RoomNotifier implements HipChatRoomNotifier {
             throw new HipChatNotificationPluginException("Error returned from HipChat API: [" + hipChatResponse.getErrorMessage() + "].");
         }
 
-        if ("sent".equals(hipChatResponse.status)) {
-            return true;
-        } else {
-            // Unfortunately there seems to be no way to obtain a reference to the plugin logger within notification plugins,
-            // but throwing an exception will result in its message being logged.
+        if (!"sent".equals(hipChatResponse.status)) {
             throw new HipChatNotificationPluginException("Unknown status returned from HipChat API: [" + hipChatResponse.status + "].");
         }
     }

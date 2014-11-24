@@ -26,6 +26,8 @@ import com.hbakkum.rundeck.plugins.hipchat.roomnotifier.HipChatRoomNotifierFacto
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,6 +43,8 @@ import java.util.Map;
 @Plugin(service= "Notification", name="HipChatNotification")
 @PluginDescription(title="HipChat")
 public class HipChatNotificationPlugin implements NotificationPlugin {
+
+    private static final Logger LOG = LoggerFactory.getLogger(HipChatNotificationPlugin.class);
 
     private static final String HIPCHAT_API_DEFAULT_BASE_URL = "https://api.hipchat.com";
     private static final String HIPCHAT_API_DEFAULT_VERSION = "v1";
@@ -63,10 +67,10 @@ public class HipChatNotificationPlugin implements NotificationPlugin {
     }
 
     @PluginProperty(
-            title = "Room",
-            description = "HipChat room to send notification message to.",
+            title = "Room(s)",
+            description = "HipChat room name or ID (ID is recommended) to send notification message to. To specify multiple rooms, separate with a comma",
             required = true)
-    private String room;
+    private String rooms;
 
     @PluginProperty(
             title = "HipChat Server Base URL",
@@ -85,8 +89,8 @@ public class HipChatNotificationPlugin implements NotificationPlugin {
     private String apiVersion;
 
     @PluginProperty(
-            title = "API Auth Token",
-            description = "HipChat API authentication token. Notification level token will do.",
+            title = "API Auth Token(s)",
+            description = "HipChat API authentication token(s). For HipChat API v1, a single notification level token will do. For HipChat API v2, a token per room may be required - see user guide for more information",
             required = true,
             scope = PropertyScope.Project)
     private String apiAuthToken;
@@ -107,56 +111,49 @@ public class HipChatNotificationPlugin implements NotificationPlugin {
      * @param executionData job execution data
      * @param config plugin configuration
      * @throws HipChatNotificationPluginException when any error occurs sending the HipChat message
-     * @return true, if the HipChat API response indicates a message was successfully delivered to a chat room
+     * @return true, if all HipChat notifications were successfully sent to each room
      */
     @Override
-    public boolean postNotification(String trigger, Map executionData, Map config) {
+    public boolean postNotification(final String trigger, final Map executionData, final Map config) {
         if (!TRIGGER_MESSAGE_COLORS.containsKey(trigger)) {
             throw new IllegalArgumentException("Unknown trigger type: [" + trigger + "].");
         }
 
         final HipChatRoomNotifier hipChatRoomNotifier = HipChatRoomNotifierFactory.get(apiVersion);
+        final HipChatApiAuthTokenManager hipChatApiAuthTokenManager = new HipChatApiAuthTokenManager(apiAuthToken);
+        final HipChatNotificationMessageGenerator hipChatNotificationMessageGenerator = new HipChatNotificationMessageGenerator();
 
         final String color = TRIGGER_MESSAGE_COLORS.get(trigger);
-        final String message = generateMessage(trigger, executionData, config);
+        final String message = hipChatNotificationMessageGenerator.generateMessage(messageTemplateLocation, HIPCHAT_MESSAGE_DEFAULT_TEMPLATE, trigger, executionData, config);
 
-        return hipChatRoomNotifier.sendRoomNotification(hipchatServerBaseUrl, room, message, color, apiAuthToken);
+        return sendRoomNotifications(hipChatRoomNotifier, hipChatApiAuthTokenManager, message, color);
     }
 
-    private String generateMessage(String trigger, Map executionData, Map config) {
-        Configuration freeMarkerCfg = new Configuration();
-        String templateName;
+    private boolean sendRoomNotifications(
+            final HipChatRoomNotifier hipChatRoomNotifier,
+            final HipChatApiAuthTokenManager hipChatApiAuthTokenManager,
+            final String message,
+            final String color) {
+        boolean didAllNotificationsSendSuccessfully = true;
 
-        if (messageTemplateLocation != null && messageTemplateLocation.length() > 0) {
-            File messageTemplateFile = new File(messageTemplateLocation);
-            try {
-                freeMarkerCfg.setDirectoryForTemplateLoading(messageTemplateFile.getParentFile());
-            } catch (IOException ioEx) {
-                throw new HipChatNotificationPluginException("Error setting FreeMarker template loading directory: [" + ioEx.getMessage() + "].", ioEx);
+        final String[] rooms = this.rooms.trim().split("\\s*,\\s*");
+        for (final String room : rooms) {
+            final String apiAuthTokenForRoom = hipChatApiAuthTokenManager.getApiAuthTokenForRoom(room);
+            if (apiAuthTokenForRoom == null || apiAuthTokenForRoom.isEmpty()) {
+                LOG.error("Cannot send notification to room [{}] as no API Auth Token found for this room.", room);
+                continue;
             }
-            templateName = messageTemplateFile.getName();
-        } else {
-            freeMarkerCfg.setClassForTemplateLoading(HipChatNotificationPlugin.class, "/templates");
-            templateName = HIPCHAT_MESSAGE_DEFAULT_TEMPLATE;
+
+            try {
+                hipChatRoomNotifier.sendRoomNotification(hipchatServerBaseUrl, room, message, color, apiAuthTokenForRoom);
+
+            } catch (Exception ex) {
+                LOG.error("Error sending HipChat notification to room: [{}]", room, ex);
+                didAllNotificationsSendSuccessfully = false;
+            }
         }
 
-        Map<String, Object> model = new HashMap();
-        model.put("trigger", trigger);
-        model.put("execution", executionData);
-        model.put("config", config);
-
-        StringWriter sw = new StringWriter();
-        try {
-            Template template = freeMarkerCfg.getTemplate(templateName);
-            template.process(model,sw);
-
-        } catch (IOException ioEx) {
-            throw new HipChatNotificationPluginException("Error loading HipChat notification message template: [" + ioEx.getMessage() + "].", ioEx);
-        } catch (TemplateException templateEx) {
-            throw new HipChatNotificationPluginException("Error merging HipChat notification message template: [" + templateEx.getMessage() + "].", templateEx);
-        }
-
-        return sw.toString();
+        return didAllNotificationsSendSuccessfully;
     }
 
 }

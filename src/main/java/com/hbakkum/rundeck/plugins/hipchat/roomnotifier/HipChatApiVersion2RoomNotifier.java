@@ -1,11 +1,14 @@
 package com.hbakkum.rundeck.plugins.hipchat.roomnotifier;
 
+import com.dtolabs.rundeck.plugins.notification.NotificationPlugin;
 import com.hbakkum.rundeck.plugins.hipchat.HipChatNotificationPluginException;
 import com.hbakkum.rundeck.plugins.hipchat.http.HttpRequestExecutor;
 import com.hbakkum.rundeck.plugins.hipchat.http.HttpResponse;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.JsonNodeFactory;
 import org.codehaus.jackson.node.ObjectNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -27,7 +30,7 @@ public class HipChatApiVersion2RoomNotifier implements HipChatRoomNotifier {
     }
 
     @Override
-    public boolean sendRoomNotification(
+    public void sendRoomNotification(
             final String baseURL,
             final String room,
             final String message,
@@ -44,11 +47,7 @@ public class HipChatApiVersion2RoomNotifier implements HipChatRoomNotifier {
 
         final HttpResponse httpResponse = httpRequestExecutor.execute(baseURL + "/" + HIPCHAT_API_VERSION + "/" + urlPath + urlQueryString, requestBody.toString());
 
-        if (httpResponse.getResponseCode() == HttpResponse.STATUS__NO_CONTENT) {
-            return true;
-
-        } else {
-            // Rather than return false throw a runtime exception as this seems to be the only way to display a detailed error message in the logs
+        if (httpResponse.getResponseCode() != HttpResponse.STATUS__NO_CONTENT) {
             throw toHipChatNotificationPluginException(httpResponse);
         }
     }

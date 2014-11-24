@@ -21,47 +21,11 @@ public final class HipChatNotificationPluginUtils {
         }
     }
 
-    public static URL toURL(final String url) {
-        try {
-            return new URL(url);
-        } catch (MalformedURLException malformedURLEx) {
-            throw new HipChatNotificationPluginException("HipChat API URL is malformed: [" + malformedURLEx.getMessage() + "].", malformedURLEx);
-        }
-    }
-
-    public static HttpURLConnection openConnection(final URL requestUrl) {
-        try {
-            return (HttpURLConnection) requestUrl.openConnection();
-        } catch (IOException ioEx) {
-            throw new HipChatNotificationPluginException("Error opening connection to HipChat URL: [" + ioEx.getMessage() + "].", ioEx);
-        }
-    }
-
-    public static InputStream getResponseStream(final HttpURLConnection connection) {
-        InputStream input = null;
-        try {
-            input = connection.getInputStream();
-        } catch (IOException ioEx) {
-            input = connection.getErrorStream();
-        }
-        return input;
-    }
-
     public static int getResponseCode(final HttpURLConnection connection) {
         try {
             return connection.getResponseCode();
         } catch (IOException ioEx) {
             throw new HipChatNotificationPluginException("Failed to obtain HTTP response from HipChat server: [" + ioEx.getMessage() + "].", ioEx);
-        }
-    }
-
-    public static void closeQuietly(InputStream input) {
-        if (input != null) {
-            try {
-                input.close();
-            } catch (IOException ioEx) {
-                // ignore
-            }
         }
     }
 
