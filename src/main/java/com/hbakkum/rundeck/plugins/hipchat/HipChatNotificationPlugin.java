@@ -70,7 +70,7 @@ public class HipChatNotificationPlugin implements NotificationPlugin {
             title = "Room(s)",
             description = "HipChat room name or ID (ID is recommended) to send notification message to. To specify multiple rooms, separate with a comma",
             required = true)
-    private String rooms;
+    private String room;
 
     @PluginProperty(
             title = "HipChat Server Base URL",
@@ -136,7 +136,7 @@ public class HipChatNotificationPlugin implements NotificationPlugin {
             final String color) {
         boolean didAllNotificationsSendSuccessfully = true;
 
-        final String[] rooms = this.rooms.trim().split("\\s*,\\s*");
+        final String[] rooms = this.room.trim().split("\\s*,\\s*");
         for (final String room : rooms) {
             final String apiAuthTokenForRoom = hipChatApiAuthTokenManager.getApiAuthTokenForRoom(room);
             if (apiAuthTokenForRoom == null || apiAuthTokenForRoom.isEmpty()) {
