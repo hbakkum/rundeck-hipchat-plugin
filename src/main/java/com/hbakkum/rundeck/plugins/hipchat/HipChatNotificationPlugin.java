@@ -104,6 +104,22 @@ public class HipChatNotificationPlugin implements NotificationPlugin {
             scope = PropertyScope.Project)
     private String messageTemplateLocation;
 
+    @PluginProperty(
+            title = "Proxy Host",
+            description = "Proxy host to use when communicating to the HipChat API.",
+            required = false,
+            defaultValue = "",
+            scope = PropertyScope.Project)
+    private String proxyHost;
+
+    @PluginProperty(
+            title = "Proxy Port",
+            description = "Proxy port to use when communicating to the HipChat API.",
+            required = false,
+            defaultValue = "",
+            scope = PropertyScope.Project)
+    private String proxyPort;
+
     /**
      * Sends a message to a HipChat room when a job notification event is raised by Rundeck.
      *
