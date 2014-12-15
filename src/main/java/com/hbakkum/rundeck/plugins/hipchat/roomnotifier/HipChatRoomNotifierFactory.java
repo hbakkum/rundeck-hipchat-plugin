@@ -13,10 +13,9 @@ import java.util.Map;
 public class HipChatRoomNotifierFactory {
 
     private static final Map<String, HipChatRoomNotifier> HIPCHAT_ROOM_NOTIFIERS = new HashMap<String, HipChatRoomNotifier>();
-
+    private static final HttpRequestExecutor httpRequestExecutor = new RestyHttpRequestExecutor();
+    
     static {
-        final HttpRequestExecutor httpRequestExecutor = new RestyHttpRequestExecutor();
-
         final HipChatRoomNotifier[] hipChatRoomNotifiers = {
             new HipChatApiVersion1RoomNotifier(httpRequestExecutor),
             new HipChatApiVersion2RoomNotifier(httpRequestExecutor)
@@ -34,6 +33,17 @@ public class HipChatRoomNotifierFactory {
             throw new HipChatNotificationPluginException("Unknown or unsupported HipChat API version: ["+apiVersion+"]");
         }
 
+        return hipChatRoomNotifier;
+    }
+    
+    public static HipChatRoomNotifier get(final String apiVersion, final String proxyHost, final String proxyPort) {
+        final HipChatRoomNotifier hipChatRoomNotifier = get(apiVersion);
+        if (proxyHost != null && !"".equals(proxyHost)) {
+            httpRequestExecutor.setProxyHost(proxyHost);
+        }
+        if (proxyPort != null && !"".equals(proxyPort)) {
+            httpRequestExecutor.setProxyPort(Integer.valueOf(proxyPort));
+        }
         return hipChatRoomNotifier;
     }
 
