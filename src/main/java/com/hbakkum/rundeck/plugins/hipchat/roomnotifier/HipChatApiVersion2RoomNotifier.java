@@ -1,15 +1,11 @@
 package com.hbakkum.rundeck.plugins.hipchat.roomnotifier;
 
-import com.dtolabs.rundeck.plugins.notification.NotificationPlugin;
 import com.hbakkum.rundeck.plugins.hipchat.HipChatNotificationPluginException;
 import com.hbakkum.rundeck.plugins.hipchat.http.HttpRequestExecutor;
 import com.hbakkum.rundeck.plugins.hipchat.http.HttpResponse;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.JsonNodeFactory;
 import org.codehaus.jackson.node.ObjectNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 
 import static com.hbakkum.rundeck.plugins.hipchat.HipChatNotificationPluginUtils.urlEncode;
@@ -29,7 +25,6 @@ public class HipChatApiVersion2RoomNotifier implements HipChatRoomNotifier {
         this.httpRequestExecutor = httpRequestExecutor;
     }
 
-    @Override
     public void sendRoomNotification(
             final String baseURL,
             final String room,
@@ -52,7 +47,6 @@ public class HipChatApiVersion2RoomNotifier implements HipChatRoomNotifier {
         }
     }
 
-    @Override
     public String getSupportedApiVersion() {
         return HIPCHAT_API_VERSION;
     }

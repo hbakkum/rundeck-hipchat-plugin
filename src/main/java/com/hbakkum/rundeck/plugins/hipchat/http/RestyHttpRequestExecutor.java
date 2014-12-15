@@ -5,10 +5,8 @@ import us.monoid.json.JSONException;
 import us.monoid.json.JSONObject;
 import us.monoid.web.Resty;
 import us.monoid.web.TextResource;
-
 import java.io.IOException;
 import java.net.HttpURLConnection;
-
 import static com.hbakkum.rundeck.plugins.hipchat.HipChatNotificationPluginUtils.getResponseCode;
 import static us.monoid.web.Resty.content;
 
@@ -17,11 +15,25 @@ import static us.monoid.web.Resty.content;
  */
 public class RestyHttpRequestExecutor implements HttpRequestExecutor {
 
-    @Override
+    private String proxyHost;
+    private int proxyPort = -1;
+
+    public void setProxyHost(final String proxyHost) {
+        this.proxyHost = proxyHost;
+    }
+
+    public void setProxyPort(final int proxyPort) {
+        this.proxyPort = proxyPort;
+    }
+
     public HttpResponse execute(final String url) {
         HttpURLConnection httpConnection = null;
         try {
-            final TextResource textResource = new Resty().text(url);
+            final Resty resty = new Resty();
+            if (proxyHost != null && proxyPort > -1) {
+                resty.setProxy(proxyHost, proxyPort);
+            }
+            final TextResource textResource = resty.text(url);
             httpConnection = textResource.http();
 
             return toHttpResponse(textResource, httpConnection);
@@ -36,11 +48,14 @@ public class RestyHttpRequestExecutor implements HttpRequestExecutor {
         }
     }
 
-    @Override
     public HttpResponse execute(final String url, final String jsonRequestBody) {
         HttpURLConnection httpConnection = null;
         try {
-            final TextResource textResource = new Resty().text(url, content(new JSONObject(jsonRequestBody)));
+            final Resty resty = new Resty();
+            if (proxyHost != null && proxyPort > -1) {
+                resty.setProxy(proxyHost, proxyPort);
+            }
+            final TextResource textResource = resty.text(url, content(new JSONObject(jsonRequestBody)));
             httpConnection = textResource.http();
 
             return toHttpResponse(textResource, httpConnection);
