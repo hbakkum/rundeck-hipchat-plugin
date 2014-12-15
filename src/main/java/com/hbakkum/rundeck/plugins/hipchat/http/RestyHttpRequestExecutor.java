@@ -17,7 +17,6 @@ import static us.monoid.web.Resty.content;
  */
 public class RestyHttpRequestExecutor implements HttpRequestExecutor {
 
-    @Override
     public HttpResponse execute(final String url) {
         HttpURLConnection httpConnection = null;
         try {
@@ -36,7 +35,6 @@ public class RestyHttpRequestExecutor implements HttpRequestExecutor {
         }
     }
 
-    @Override
     public HttpResponse execute(final String url, final String jsonRequestBody) {
         HttpURLConnection httpConnection = null;
         try {

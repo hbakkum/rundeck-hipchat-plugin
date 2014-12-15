@@ -19,13 +19,13 @@ public class HipChatNotificationMessageGenerator {
             final String messageTemplateLocation,
             final String defaultMessageTemplateName,
             final String trigger,
-            final Map executionData,
-            final Map config) {
+            final Map<?, ?> executionData,
+            final Map<?, ?> config) {
         final Configuration freeMarkerCfg = new Configuration();
 
         final String templateName = determineTemplateName(messageTemplateLocation, defaultMessageTemplateName, freeMarkerCfg);
 
-        final Map<String, Object> model = new HashMap();
+        final Map<String, Object> model = new HashMap<String, Object>();
         model.put("trigger", trigger);
         model.put("execution", executionData);
         model.put("config", config);

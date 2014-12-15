@@ -19,6 +19,7 @@ package com.hbakkum.rundeck.plugins.hipchat;
 /**
  * @author Hayden Bakkum
  */
+@SuppressWarnings("serial")
 public class HipChatNotificationPluginException extends RuntimeException {
 
     /**
