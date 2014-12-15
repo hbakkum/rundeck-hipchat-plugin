@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @autho Hayden Bakkum
+ * @author Hayden Bakkum
  */
 public class HipChatNotificationMessageGenerator {
 
