@@ -26,6 +26,10 @@ public final class HipChatNotificationPluginUtils {
         }
     }
 
+    public static boolean isNotEmpty(final String value) {
+        return value != null && !"".equals(value);
+    }
+
     private HipChatNotificationPluginUtils() {}
 
 }

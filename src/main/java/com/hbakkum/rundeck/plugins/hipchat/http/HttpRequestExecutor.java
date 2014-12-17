@@ -5,9 +5,7 @@ package com.hbakkum.rundeck.plugins.hipchat.http;
  */
 public interface HttpRequestExecutor {
 
-    void setProxyHost(final String proxyHost);
-
-    void setProxyPort(final int proxyPort);
+    void setProxy(final String proxyHost, final int proxyPort);
 
     HttpResponse execute(final String url);
 

@@ -129,7 +129,7 @@ public class HipChatNotificationPlugin implements NotificationPlugin {
             throw new IllegalArgumentException("Unknown trigger type: [" + trigger + "].");
         }
 
-        final HipChatRoomNotifier hipChatRoomNotifier = HipChatRoomNotifierFactory.get(apiVersion);
+        final HipChatRoomNotifier hipChatRoomNotifier = HipChatRoomNotifierFactory.get(apiVersion, proxyHost, proxyPort);
         final HipChatApiAuthTokenManager hipChatApiAuthTokenManager = new HipChatApiAuthTokenManager(apiAuthToken);
         final HipChatNotificationMessageGenerator hipChatNotificationMessageGenerator = new HipChatNotificationMessageGenerator();
 

@@ -1,6 +1,7 @@
 package com.hbakkum.rundeck.plugins.hipchat.http;
 
 import com.hbakkum.rundeck.plugins.hipchat.HipChatNotificationPluginException;
+import com.hbakkum.rundeck.plugins.hipchat.HipChatNotificationPluginUtils;
 import us.monoid.json.JSONException;
 import us.monoid.json.JSONObject;
 import us.monoid.web.Resty;
@@ -10,6 +11,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 
 import static com.hbakkum.rundeck.plugins.hipchat.HipChatNotificationPluginUtils.getResponseCode;
+import static com.hbakkum.rundeck.plugins.hipchat.HipChatNotificationPluginUtils.isNotEmpty;
 import static us.monoid.web.Resty.content;
 
 /**
@@ -20,11 +22,9 @@ public class RestyHttpRequestExecutor implements HttpRequestExecutor {
     private String proxyHost;
     private int proxyPort = -1;
 
-    public void setProxyHost(final String proxyHost) {
+    @Override
+    public void setProxy(final String proxyHost, final int proxyPort) {
         this.proxyHost = proxyHost;
-    }
-
-    public void setProxyPort(final int proxyPort) {
         this.proxyPort = proxyPort;
     }
 
@@ -33,7 +33,7 @@ public class RestyHttpRequestExecutor implements HttpRequestExecutor {
         HttpURLConnection httpConnection = null;
         try {
             final Resty resty = new Resty();
-            if (proxyHost != null && proxyPort > -1) {
+            if (isProxySet()) {
                 resty.setProxy(proxyHost, proxyPort);
             }
             final TextResource textResource = resty.text(url);
@@ -56,7 +56,7 @@ public class RestyHttpRequestExecutor implements HttpRequestExecutor {
         HttpURLConnection httpConnection = null;
         try {
             final Resty resty = new Resty();
-            if (proxyHost != null && proxyPort > -1) {
+            if (isProxySet()) {
                 resty.setProxy(proxyHost, proxyPort);
             }
             final TextResource textResource = resty.text(url, content(new JSONObject(jsonRequestBody)));
@@ -75,6 +75,10 @@ public class RestyHttpRequestExecutor implements HttpRequestExecutor {
                 httpConnection.disconnect();
             }
         }
+    }
+
+    private boolean isProxySet() {
+        return isNotEmpty(proxyHost) && proxyPort > -1;
     }
 
     private HttpResponse toHttpResponse(final TextResource textResource, final HttpURLConnection httpConnection) {
