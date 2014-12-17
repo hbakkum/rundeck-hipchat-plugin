@@ -1,7 +1,6 @@
 package com.hbakkum.rundeck.plugins.hipchat.roomnotifier;
 
 import com.hbakkum.rundeck.plugins.hipchat.HipChatNotificationPluginException;
-import com.hbakkum.rundeck.plugins.hipchat.HipChatNotificationPluginUtils;
 import com.hbakkum.rundeck.plugins.hipchat.http.HttpRequestExecutor;
 import com.hbakkum.rundeck.plugins.hipchat.http.RestyHttpRequestExecutor;
 

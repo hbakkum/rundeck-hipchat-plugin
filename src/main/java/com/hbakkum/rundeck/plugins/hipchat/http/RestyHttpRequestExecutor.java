@@ -1,7 +1,6 @@
 package com.hbakkum.rundeck.plugins.hipchat.http;
 
 import com.hbakkum.rundeck.plugins.hipchat.HipChatNotificationPluginException;
-import com.hbakkum.rundeck.plugins.hipchat.HipChatNotificationPluginUtils;
 import us.monoid.json.JSONException;
 import us.monoid.json.JSONObject;
 import us.monoid.web.Resty;
