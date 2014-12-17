@@ -1,14 +1,11 @@
 package com.hbakkum.rundeck.plugins.hipchat.roomnotifier;
 
-import com.dtolabs.rundeck.plugins.notification.NotificationPlugin;
 import com.hbakkum.rundeck.plugins.hipchat.HipChatNotificationPluginException;
 import com.hbakkum.rundeck.plugins.hipchat.http.HttpRequestExecutor;
 import com.hbakkum.rundeck.plugins.hipchat.http.HttpResponse;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.JsonNodeFactory;
 import org.codehaus.jackson.node.ObjectNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 

@@ -23,15 +23,9 @@ import com.dtolabs.rundeck.plugins.descriptions.PluginProperty;
 import com.dtolabs.rundeck.plugins.notification.NotificationPlugin;
 import com.hbakkum.rundeck.plugins.hipchat.roomnotifier.HipChatRoomNotifier;
 import com.hbakkum.rundeck.plugins.hipchat.roomnotifier.HipChatRoomNotifierFactory;
-import freemarker.template.Configuration;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 

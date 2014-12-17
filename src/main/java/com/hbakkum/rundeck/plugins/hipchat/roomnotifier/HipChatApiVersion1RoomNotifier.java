@@ -1,6 +1,5 @@
 package com.hbakkum.rundeck.plugins.hipchat.roomnotifier;
 
-import com.dtolabs.rundeck.plugins.notification.NotificationPlugin;
 import com.hbakkum.rundeck.plugins.hipchat.HipChatNotificationPluginException;
 import com.hbakkum.rundeck.plugins.hipchat.http.HttpRequestExecutor;
 import com.hbakkum.rundeck.plugins.hipchat.http.HttpResponse;
@@ -10,7 +9,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import static com.hbakkum.rundeck.plugins.hipchat.HipChatNotificationPluginUtils.urlEncode;
 

@@ -5,7 +5,6 @@ import com.hbakkum.rundeck.plugins.hipchat.http.HttpRequestExecutor;
 import com.hbakkum.rundeck.plugins.hipchat.http.HttpResponse;
 import org.mockito.ArgumentCaptor;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import static com.hbakkum.rundeck.plugins.hipchat.HipChatNotificationPluginUtils.urlEncode;
