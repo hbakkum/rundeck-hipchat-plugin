@@ -38,6 +38,7 @@ public class HipChatApiVersion2RoomNotifier implements HipChatRoomNotifier {
         requestBody.put("message", message);
         requestBody.put("color", color);
         requestBody.put("message_format", "html");
+        requestBody.put("notify", "true"); 
 
         final String urlPath = String.format(HIPCHAT_API_ROOM_NOTIFICATION_URL_PATH, urlEncode(room));
         final String urlQueryString = String.format(HIPCHAT_API_ROOM_NOTIFICATION_URL_QUERY, urlEncode(authToken));
