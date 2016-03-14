@@ -114,6 +114,13 @@ public class HipChatNotificationPlugin implements NotificationPlugin {
             scope = PropertyScope.Project)
     private String proxyPort;
 
+    @PluginProperty(
+            title = "Send User Notification",
+            description = "Whether this message should trigger a user notification (change the tab color, play a sound, notify mobile phones, etc). Each recipient's notification preferences are taken into account.",
+            required = false,
+            defaultValue = "")
+    private boolean sendUserNotification;
+
     /**
      * Sends a message to a HipChat room when a job notification event is raised by Rundeck.
      *
