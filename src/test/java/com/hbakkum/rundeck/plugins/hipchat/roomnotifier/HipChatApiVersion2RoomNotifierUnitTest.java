@@ -47,7 +47,8 @@ public class HipChatApiVersion2RoomNotifierUnitTest {
                 HIPCHAT_ROOM_NAME,
                 HIPCHAT_MESSAGE,
                 HIPCHAT_COLOR,
-                HIPCHAT_AUTH_TOKEN
+                HIPCHAT_AUTH_TOKEN,
+                true
         );
 
         assertTrue(captureHipChatUrl().startsWith(HIPCHAT_BASE_URL));
@@ -63,7 +64,8 @@ public class HipChatApiVersion2RoomNotifierUnitTest {
                 HIPCHAT_ROOM_NAME,
                 HIPCHAT_MESSAGE,
                 HIPCHAT_COLOR,
-                HIPCHAT_AUTH_TOKEN
+                HIPCHAT_AUTH_TOKEN,
+                true
         );
 
         assertTrue(captureHipChatUrl().contains("v2"));
@@ -79,7 +81,8 @@ public class HipChatApiVersion2RoomNotifierUnitTest {
                 HIPCHAT_ROOM_NAME,
                 HIPCHAT_MESSAGE,
                 HIPCHAT_COLOR,
-                HIPCHAT_AUTH_TOKEN
+                HIPCHAT_AUTH_TOKEN,
+                true
         );
 
         assertTrue(captureHipChatUrl().contains(urlEncode(HIPCHAT_ROOM_NAME)));
@@ -95,7 +98,8 @@ public class HipChatApiVersion2RoomNotifierUnitTest {
                 HIPCHAT_ROOM_NAME,
                 HIPCHAT_MESSAGE,
                 HIPCHAT_COLOR,
-                HIPCHAT_AUTH_TOKEN
+                HIPCHAT_AUTH_TOKEN,
+                true
         );
 
         assertTrue(captureHipChatRequestBody().contains("\"message\":\""+HIPCHAT_MESSAGE+"\""));
@@ -111,7 +115,8 @@ public class HipChatApiVersion2RoomNotifierUnitTest {
                 HIPCHAT_ROOM_NAME,
                 HIPCHAT_MESSAGE,
                 HIPCHAT_COLOR,
-                HIPCHAT_AUTH_TOKEN
+                HIPCHAT_AUTH_TOKEN,
+                true
         );
 
         assertTrue(captureHipChatRequestBody().contains("\"color\":\""+HIPCHAT_COLOR+"\""));
@@ -127,7 +132,8 @@ public class HipChatApiVersion2RoomNotifierUnitTest {
                 HIPCHAT_ROOM_NAME,
                 HIPCHAT_MESSAGE,
                 HIPCHAT_COLOR,
-                HIPCHAT_AUTH_TOKEN
+                HIPCHAT_AUTH_TOKEN,
+                true
         );
 
         assertTrue(captureHipChatUrl().contains("auth_token="+urlEncode(HIPCHAT_AUTH_TOKEN)));
@@ -143,7 +149,8 @@ public class HipChatApiVersion2RoomNotifierUnitTest {
                 HIPCHAT_ROOM_NAME,
                 HIPCHAT_MESSAGE,
                 HIPCHAT_COLOR,
-                HIPCHAT_AUTH_TOKEN
+                HIPCHAT_AUTH_TOKEN,
+                true
         );
 
         assertEquals(captureHipChatUrl(), HIPCHAT_BASE_URL+"/v2/room/"+urlEncode(HIPCHAT_ROOM_NAME)+"/notification?auth_token="+urlEncode(HIPCHAT_AUTH_TOKEN));
@@ -159,10 +166,11 @@ public class HipChatApiVersion2RoomNotifierUnitTest {
                 HIPCHAT_ROOM_NAME,
                 HIPCHAT_MESSAGE,
                 HIPCHAT_COLOR,
-                HIPCHAT_AUTH_TOKEN
+                HIPCHAT_AUTH_TOKEN,
+                true
         );
 
-        assertEquals(captureHipChatRequestBody(), "{\"message\":\""+HIPCHAT_MESSAGE+"\",\"color\":\""+HIPCHAT_COLOR+"\",\"message_format\":\"html\"}");
+        assertEquals(captureHipChatRequestBody(), "{\"message\":\""+HIPCHAT_MESSAGE+"\",\"color\":\""+HIPCHAT_COLOR+"\",\"message_format\":\"html\",\"notify\":true}");
     }
 
     @Test(expectedExceptions = HipChatNotificationPluginException.class)
@@ -175,7 +183,8 @@ public class HipChatApiVersion2RoomNotifierUnitTest {
                 HIPCHAT_ROOM_NAME,
                 HIPCHAT_MESSAGE,
                 HIPCHAT_COLOR,
-                HIPCHAT_AUTH_TOKEN
+                HIPCHAT_AUTH_TOKEN,
+                true
         );
     }
 

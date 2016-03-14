@@ -162,7 +162,7 @@ public class HipChatNotificationPlugin implements NotificationPlugin {
             }
 
             try {
-                hipChatRoomNotifier.sendRoomNotification(hipchatServerBaseUrl, room, message, color, apiAuthTokenForRoom);
+                hipChatRoomNotifier.sendRoomNotification(hipchatServerBaseUrl, room, message, color, apiAuthTokenForRoom, sendUserNotification);
 
             } catch (Exception ex) {
                 LOG.error("Error sending HipChat notification to room: [{}]", room, ex);

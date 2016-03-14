@@ -18,7 +18,7 @@ import static com.hbakkum.rundeck.plugins.hipchat.HipChatNotificationPluginUtils
 public class HipChatApiVersion1RoomNotifier implements HipChatRoomNotifier {
 
     private static final String HIPCHAT_API_ROOM_NOTIFICATION_URL_PATH = "rooms/message";
-    private static final String HIPCHAT_API_ROOM_NOTIFICATION_URL_QUERY = "?auth_token=%s&format=json&message_format=html&room_id=%s&from=%s&message=%s&color=%s";
+    private static final String HIPCHAT_API_ROOM_NOTIFICATION_URL_QUERY = "?auth_token=%s&format=json&message_format=html&room_id=%s&from=%s&message=%s&color=%s&notify=%s";
     private static final String HIPCHAT_API_VERSION = "v1";
 
     private static final String HIPCHAT_MESSAGE_FROM_NAME = "Rundeck";
@@ -35,14 +35,16 @@ public class HipChatApiVersion1RoomNotifier implements HipChatRoomNotifier {
             final String room,
             final String message,
             final String color,
-            final String authToken) {
+            final String authToken,
+            final boolean sendUserNotification) {
 
         final String urlQueryString = String.format(HIPCHAT_API_ROOM_NOTIFICATION_URL_QUERY,
                 urlEncode(authToken),
                 urlEncode(room),
                 urlEncode(HIPCHAT_MESSAGE_FROM_NAME),
                 urlEncode(message),
-                urlEncode(color));
+                urlEncode(color),
+                sendUserNotification ? 1 : 0);
 
         final HipChatAPIResponse hipChatResponse = invokeHipChatAPI(baseURL, HIPCHAT_API_ROOM_NOTIFICATION_URL_PATH, urlQueryString);
 

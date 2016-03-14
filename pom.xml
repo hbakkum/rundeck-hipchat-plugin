@@ -9,7 +9,7 @@
 
     <groupId>com.hbakkum.rundeck.plugins</groupId>
     <artifactId>rundeck-hipchat-plugin</artifactId>
-    <version>1.5.1-SNAPSHOT</version>
+    <version>1.6.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>rundeck-hipchat-plugin</name>

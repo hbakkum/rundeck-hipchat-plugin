@@ -32,13 +32,14 @@ public class HipChatApiVersion2RoomNotifier implements HipChatRoomNotifier {
             final String room,
             final String message,
             final String color,
-            final String authToken) {
+            final String authToken,
+            final boolean sendUserNotification) {
 
         final ObjectNode requestBody = JsonNodeFactory.instance.objectNode();
         requestBody.put("message", message);
         requestBody.put("color", color);
         requestBody.put("message_format", "html");
-        requestBody.put("notify", "true");
+        requestBody.put("notify", sendUserNotification);
 
 
         final String urlPath = String.format(HIPCHAT_API_ROOM_NOTIFICATION_URL_PATH, urlEncode(room));
