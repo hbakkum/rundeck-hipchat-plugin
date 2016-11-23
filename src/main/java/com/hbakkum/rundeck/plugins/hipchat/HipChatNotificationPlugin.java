@@ -23,11 +23,14 @@ import com.dtolabs.rundeck.plugins.descriptions.PluginProperty;
 import com.dtolabs.rundeck.plugins.notification.NotificationPlugin;
 import com.hbakkum.rundeck.plugins.hipchat.roomnotifier.HipChatRoomNotifier;
 import com.hbakkum.rundeck.plugins.hipchat.roomnotifier.HipChatRoomNotifierFactory;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.apache.commons.lang.StringUtils.isBlank;
 
 /**
  * Sends Rundeck job notification messages to a HipChat room.
@@ -121,6 +124,16 @@ public class HipChatNotificationPlugin implements NotificationPlugin {
             defaultValue = "")
     private boolean sendUserNotification;
 
+    @PluginProperty(
+            title = "API Auth Token Override",
+            description = "Overrides any HipChat API authentication tokens used in your framework or project property files. " +
+                    "For HipChat API v1, a single notification level token will do. For HipChat API v2, a token per room may be required - see user guide for more information. " +
+                    "__NOTE__: Configuring tokens at this level will likely result in token duplication and will also mean that your token will be available in clear text within the rundeck UI. " +
+                    "Only manage your API tokens here if you are comfortable with these issues and it is impractical to manage tokens in your framework or project properties files (which is the recommended approach).",
+            required = false,
+            scope = PropertyScope.InstanceOnly)
+    private String apiAuthTokenOverride;
+
     /**
      * Sends a message to a HipChat room when a job notification event is raised by Rundeck.
      *
@@ -137,7 +150,7 @@ public class HipChatNotificationPlugin implements NotificationPlugin {
         }
 
         final HipChatRoomNotifier hipChatRoomNotifier = HipChatRoomNotifierFactory.get(apiVersion, proxyHost, proxyPort);
-        final HipChatApiAuthTokenManager hipChatApiAuthTokenManager = new HipChatApiAuthTokenManager(apiAuthToken);
+        final HipChatApiAuthTokenManager hipChatApiAuthTokenManager = new HipChatApiAuthTokenManager(isBlank(apiAuthTokenOverride) ? apiAuthToken : apiAuthTokenOverride);
         final HipChatNotificationMessageGenerator hipChatNotificationMessageGenerator = new HipChatNotificationMessageGenerator();
 
         final String color = TRIGGER_MESSAGE_COLORS.get(trigger);
