@@ -3,7 +3,7 @@
 
     <groupId>com.hbakkum.rundeck.plugins</groupId>
     <artifactId>rundeck-hipchat-plugin</artifactId>
-    <version>1.6.1-SNAPSHOT</version>
+    <version>1.7.0</version>
     <packaging>jar</packaging>
 
     <name>rundeck-hipchat-plugin</name>
@@ -29,7 +29,7 @@
         <connection>scm:git:git://github.com/hbakkum/rundeck-hipchat-plugin.git</connection>
         <developerConnection>scm:git:git@github.com:hbakkum/rundeck-hipchat-plugin.git</developerConnection>
         <url>https://github.com/hbakkum/rundeck-hipchat-plugin</url>
-      <tag>HEAD</tag>
+      <tag>rundeck-hipchat-plugin-1.7.0</tag>
   </scm>
 
     <properties>
